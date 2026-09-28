@@ -132,7 +132,7 @@ public class BoilerService : IBoilerService
                 throw new BoilerOperationException("Boiler is not running.");
             }
 
-            _boiler.Status = BoilerStatus.Ready;
+            _boiler.Status = BoilerStatus.Lockout;
             _boiler.CurrentCycle = null;
         }
 
