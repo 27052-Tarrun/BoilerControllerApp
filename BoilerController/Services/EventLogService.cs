@@ -3,6 +3,9 @@ using BoilerController.Repository;
 
 namespace BoilerController.Services;
 
+/// <summary>
+/// Provides logging operations.
+/// </summary>
 public class EventLogService : IEventLogService
 {
     private readonly IEventLogRepository _repository;
@@ -12,6 +15,7 @@ public class EventLogService : IEventLogService
         _repository = repository;
     }
 
+    /// <inheritdoc/>
     public void Log(string eventName, string eventData)
     {
         EventLog log =
@@ -25,6 +29,7 @@ public class EventLogService : IEventLogService
         _repository.Add(log);
     }
 
+    /// <inheritdoc/>
     public List<EventLog> GetAll()
     {
         return _repository.GetAll();

@@ -7,6 +7,10 @@ namespace BoilerController;
 
 internal class Program
 {
+    /// <summary>
+    /// The application's main entry point.
+    /// </summary>
+    /// <param name="args">The arguments.</param>
     static void Main(string[] args)
     {
         try

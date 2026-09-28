@@ -30,9 +30,11 @@ public class Boiler_Controller : IBoilerController
         _eventLogService = eventLogService;
     }
 
+    /// <inheritdoc/>
     public void Start()
     {
         Console.WriteLine(CommonMessages.ControllerInitialized);
+        Thread.Sleep(1000);
 
         _boilerService.ProgressChanged += OnProgressChanged;
         _boilerService.SequenceCompleted += OnSequenceCompleted;

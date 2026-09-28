@@ -1,5 +1,8 @@
 ﻿namespace BoilerController.Constants;
 
+/// <summary>
+/// Provides Error messages used accross the application.
+/// </summary>
 public static class ErrorMessages
 {
     public const string InvalidMenuChoice = "Invalid Menu Choice.";

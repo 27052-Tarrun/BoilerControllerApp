@@ -2,6 +2,9 @@
 
 namespace BoilerController.Views;
 
+/// <summary>
+/// Provides methods to show the Event logs.
+/// </summary>
 public class EventLogView
 {
     private readonly DashboardRenderer?  _renderer;
@@ -11,6 +14,10 @@ public class EventLogView
         _renderer = renderer;
     }
 
+    /// <summary>
+    /// Prints the Logs on the screen
+    /// </summary>
+    /// <param name="logs">The List of EventLogs</param>
     public void DisplayLogs(List<EventLog> logs)
     {
         _renderer?.ClearContentArea();

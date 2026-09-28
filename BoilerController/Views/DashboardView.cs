@@ -4,6 +4,9 @@ using BoilerController.Models;
 
 namespace BoilerController.Views;
 
+/// <summary>
+/// Provides methods to print dashboard on the console
+/// </summary>
 public class DashboardView
 {
     private DashboardRenderer? _renderer;

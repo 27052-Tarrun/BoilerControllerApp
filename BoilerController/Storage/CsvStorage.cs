@@ -4,8 +4,12 @@ using BoilerController.Models;
 
 namespace BoilerController.Storage;
 
+/// <summary>
+/// Provides methods to communicate with the file.
+/// </summary>
 public class CsvStorage : IStorage
 {
+    /// <inheritdoc/>
     public List<EventLog> Load()
     {
         List<EventLog> logs = [];
@@ -43,6 +47,7 @@ public class CsvStorage : IStorage
         }
     }
 
+    /// <inheritdoc/>
     public void Append(EventLog log)
     {
         try

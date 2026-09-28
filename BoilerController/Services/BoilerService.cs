@@ -18,6 +18,7 @@ public class BoilerService : IBoilerService
     private Task? _sequenceTask;
     private CancellationTokenSource? _sequenceCts;
 
+    /// <inheritdoc/>
     public BoilerModel Boiler
     {
         get
@@ -29,9 +30,16 @@ public class BoilerService : IBoilerService
         }
     }
 
+    /// <inheritdoc/>
     public event EventHandler<BoilerProgressEventArgs>? ProgressChanged;
+
+    /// <inheritdoc/>
     public event EventHandler? SequenceCompleted;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BoilerService"/> class.
+    /// </summary>
+    /// <param name="eventLogService">Service used to log boiler events.</param>
     public BoilerService(IEventLogService eventLogService)
     {
         _eventLogService = eventLogService;
@@ -40,6 +48,7 @@ public class BoilerService : IBoilerService
         _eventLogService.Log("Boiler Initialized", "System Started");
     }
 
+    /// <inheritdoc/>
     public void ToggleInterlock()
     {
         lock (_boilerLock)
@@ -58,6 +67,7 @@ public class BoilerService : IBoilerService
         _eventLogService.Log("Interlock Switch", $"Toggled To {_boiler.InterlockState}");
     }
 
+    /// <inheritdoc/>
     public void ResetLockout()
     {
         lock (_boilerLock)
@@ -84,6 +94,7 @@ public class BoilerService : IBoilerService
         _eventLogService.Log("Boiler Status Changed", "Ready");
     }
 
+    /// <inheritdoc/>
     public void StartBoilerSequence()
     {
         lock (_boilerLock)
@@ -111,6 +122,7 @@ public class BoilerService : IBoilerService
     }
 
 
+    /// <inheritdoc/>
     public void StopBoilerSequence()
     {
         lock (_boilerLock)
@@ -128,6 +140,7 @@ public class BoilerService : IBoilerService
         _eventLogService.Log("Boiler Stopped", "Returned To Ready");
     }
 
+    /// <inheritdoc/>
     public void SimulateBoilerError()
     {
         lock (_boilerLock)
