@@ -19,4 +19,6 @@ public interface IBoilerService
     void ResetLockout();
 
     void StartBoilerSequence();
+
+    void StopBoilerSequence();
 }

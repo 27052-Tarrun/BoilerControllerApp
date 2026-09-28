@@ -16,6 +16,7 @@ public class BoilerService : IBoilerService
     private readonly BoilerModel _boiler = new();
     private readonly object _boilerLock = new();
     private Task? _sequenceTask;
+    private CancellationTokenSource? _sequenceCts;
 
     public BoilerModel Boiler
     {
@@ -44,9 +45,13 @@ public class BoilerService : IBoilerService
         lock (_boilerLock)
         {
             _boiler.InterlockState = _boiler.InterlockState == InterlockState.Open ? InterlockState.Closed : InterlockState.Open;
-            if(_boiler.InterlockState == InterlockState.Open)
+            if (_boiler.InterlockState == InterlockState.Open)
             {
+                _sequenceCts?.Cancel();
                 _boiler.Status = BoilerStatus.Lockout;
+                _boiler.CurrentCycle = null;
+
+                _eventLogService.Log("Boiler Status Changed", "Lockout");
             }
         }
 
@@ -63,6 +68,7 @@ public class BoilerService : IBoilerService
             }
 
             _boiler.Status = BoilerStatus.Ready;
+            _boiler.CurrentCycle = null;
         }
 
         _eventLogService.Log("Boiler Status Changed", "Ready");
@@ -84,43 +90,81 @@ public class BoilerService : IBoilerService
                     StartTime = DateTime.Now,
                     Phase = BoilerPhase.PrePurge,
                     RemainingSeconds = 20,
-                    ProgressPercentage = 0
+                    ProgressPercentage = 0,
                 };
         }
 
-        _sequenceTask = Task.Run(RunSequenceAsync);
+        _sequenceCts = new CancellationTokenSource();
+
+        _sequenceTask = Task.Run(() => RunSequenceAsync(_sequenceCts.Token));
         _eventLogService.Log("Boiler Sequence", "Started");
     }
 
-    private async Task RunSequenceAsync()
-    {
-        await RunPrePurge();
-        await RunIgnition();
 
+    public void StopBoilerSequence()
+    {
         lock (_boilerLock)
         {
-            _boiler.Status = BoilerStatus.Operational;
-            _boiler.CurrentCycle!.Phase = BoilerPhase.Operational;
-            _boiler.CurrentCycle.RemainingSeconds = 0;
-            _boiler.CurrentCycle.ProgressPercentage = 100;
+            if (_boiler.Status != BoilerStatus.Running)
+            {
+                throw new BoilerOperationException("Boiler is not running.");
+            }
+
+            _boiler.Status = BoilerStatus.Ready;
+            _boiler.CurrentCycle = null;
         }
 
-        _eventLogService.Log("Boiler Operational", "Running");
-        SequenceCompleted?.Invoke(this, EventArgs.Empty);
+        _sequenceCts?.Cancel();
+        _eventLogService.Log("Boiler Stopped", "Returned To Ready");
     }
 
-    private async Task RunPrePurge()
+    private async Task RunSequenceAsync(CancellationToken token)
+    {
+        try
+        {
+            await RunPrePurge(token);
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            await RunIgnition(token);
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            lock (_boilerLock)
+            {
+                _boiler.Status = BoilerStatus.Operational;
+                _boiler.CurrentCycle = null;
+            }
+
+            _eventLogService.Log("Boiler Operational", "Running");
+            SequenceCompleted?.Invoke(this, EventArgs.Empty);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private async Task RunPrePurge(CancellationToken token)
     {
         using PeriodicTimer timer = new(TimeSpan.FromSeconds(1));
         for (int second = 10; second > 0; second--)
         {
-            await timer.WaitForNextTickAsync();
-            double progress = ((double)(10 - second + 1) / 20) * 100;
+            await timer.WaitForNextTickAsync(token);
             lock (_boilerLock)
             {
+                if (_boiler.Status != BoilerStatus.Running)
+                {
+                    return;
+                }
+
                 _boiler.CurrentCycle!.Phase = BoilerPhase.PrePurge;
                 _boiler.CurrentCycle.RemainingSeconds = second - 1 + 10;
-                _boiler.CurrentCycle.ProgressPercentage = progress;
+
+                _boiler.CurrentCycle.ProgressPercentage = ((10 - second + 1) / 20.0) * 100;
             }
 
             ProgressChanged?.Invoke(this,
@@ -128,25 +172,29 @@ public class BoilerService : IBoilerService
                 {
                     Phase = BoilerPhase.PrePurge,
                     RemainingSeconds = second - 1 + 10,
-                    ProgressPercentage = progress
+                    ProgressPercentage = ((10 - second + 1) / 20.0) * 100,
                 });
         }
 
         _eventLogService.Log("Pre-Purge Completed", "Successful");
     }
 
-    private async Task RunIgnition()
+    private async Task RunIgnition(CancellationToken token)
     {
         using PeriodicTimer timer = new(TimeSpan.FromSeconds(1));
         for (int second = 10; second > 0; second--)
         {
-            await timer.WaitForNextTickAsync();
-            double progress = 50 + (((double)(10 - second + 1) / 10) * 50);
+            await timer.WaitForNextTickAsync(token);
             lock (_boilerLock)
             {
+                if (_boiler.Status != BoilerStatus.Running)
+                {
+                    return;
+                }
+
                 _boiler.CurrentCycle!.Phase = BoilerPhase.Ignition;
                 _boiler.CurrentCycle.RemainingSeconds = second - 1;
-                _boiler.CurrentCycle.ProgressPercentage = progress;
+                _boiler.CurrentCycle.ProgressPercentage = 50 + (((10 - second + 1) / 10.0) * 50);
             }
 
             ProgressChanged?.Invoke(this,
@@ -154,7 +202,7 @@ public class BoilerService : IBoilerService
                 {
                     Phase = BoilerPhase.Ignition,
                     RemainingSeconds = second - 1,
-                    ProgressPercentage = progress
+                    ProgressPercentage = 50 + (((10 - second + 1) / 10.0) * 50)
                 });
         }
 
