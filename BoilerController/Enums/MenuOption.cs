@@ -7,5 +7,6 @@ public enum MenuOption
     ResetLockout = 2,
     StartBoilerSequence = 3,
     StopBoilerSequence = 4,
-    ViewEventLog = 5,
+    SimulateBoilerError = 5,
+    ViewEventLog = 6,
 }

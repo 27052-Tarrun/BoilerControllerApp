@@ -69,9 +69,13 @@ public class Boiler_Controller : IBoilerController
                 StopBoilerSequence();
                 break;
 
+            case MenuOption.SimulateBoilerError:
+                SimulateBoilerError();
+                break;
+
             case MenuOption.ViewEventLog:
                 ViewEventLog();
-                break;
+                break;            
 
             case MenuOption.Exit:
                 _isRunning = false;
@@ -128,7 +132,7 @@ public class Boiler_Controller : IBoilerController
         try
         {
             _boilerService.StopBoilerSequence();
-            _dashboardView.ForceFullRedraw(_boilerService.Boiler);
+            _dashboardView.DisplayMessageWithRedraw(_boilerService.Boiler, "Boiler Sequence Stopped.");
         }
         catch (Exception ex)
         {
@@ -136,6 +140,18 @@ public class Boiler_Controller : IBoilerController
         }
     }
 
+    private void SimulateBoilerError()
+    {
+        try
+        {
+            _boilerService.SimulateBoilerError();
+            _dashboardView.DisplayMessageWithRedraw(_boilerService.Boiler, "Boiler Error Simulated.");
+        }
+        catch (Exception ex)
+        {
+            _dashboardView.DisplayErrorWithRedraw(_boilerService.Boiler,ex.Message);
+        }
+    }
 
     private void ViewEventLog()
     {

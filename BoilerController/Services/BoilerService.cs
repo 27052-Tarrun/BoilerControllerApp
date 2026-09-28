@@ -62,6 +62,16 @@ public class BoilerService : IBoilerService
     {
         lock (_boilerLock)
         {
+            if (_boiler.Status == BoilerStatus.Running)
+            {
+                _sequenceCts?.Cancel();
+
+                _boiler.Status = BoilerStatus.Lockout;
+                _boiler.CurrentCycle = null;
+                _eventLogService.Log("Boiler Status Changed", "Lockout");
+                return;
+            }
+
             if (_boiler.InterlockState == InterlockState.Open)
             {
                 throw new BoilerOperationException(ErrorMessages.InterlockMustBeClosed);
@@ -118,6 +128,23 @@ public class BoilerService : IBoilerService
         _eventLogService.Log("Boiler Stopped", "Returned To Ready");
     }
 
+    public void SimulateBoilerError()
+    {
+        lock (_boilerLock)
+        {
+            if(_boiler.Status != BoilerStatus.Operational)
+            {
+                throw new BoilerOperationException("Boiler is not in Operational State.");
+            }
+
+            _boiler.Status = BoilerStatus.Lockout;
+            _boiler.CurrentCycle = null;
+        }
+
+        _sequenceCts?.Cancel();
+        _eventLogService.Log("Simulate Boiler Error","Return to Lockout");
+    }
+    
     private async Task RunSequenceAsync(CancellationToken token)
     {
         try

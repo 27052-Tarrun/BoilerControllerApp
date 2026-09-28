@@ -21,4 +21,6 @@ public interface IBoilerService
     void StartBoilerSequence();
 
     void StopBoilerSequence();
+
+    void SimulateBoilerError();
 }

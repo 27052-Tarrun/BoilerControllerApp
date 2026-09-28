@@ -25,7 +25,7 @@ public class DashboardView
         _renderer.MoveToContentArea();
 
         DisplayMenu(boiler);
-        int choice = ConsoleInput.ReadIntInRange("Choice : ", 0, 4, ErrorMessages.InvalidMenuChoice);
+        int choice = ConsoleInput.ReadIntInRange("Choice : ", 0, 6, ErrorMessages.InvalidMenuChoice);
         return (MenuOption)choice;
     }
 
@@ -122,7 +122,8 @@ public class DashboardView
         Console.WriteLine("| 2. Reset Lockout                                         |");
         Console.WriteLine("| 3. Start Boiler Sequence                                 |");
         Console.WriteLine("| 4. Stop Boiler Sequence                                  |");
-        Console.WriteLine("| 5. View Event Log                                        |");
+        Console.WriteLine("| 5. Simulate Boiler Error                                 |");
+        Console.WriteLine("| 6. View Event Log                                        |");
         Console.WriteLine("| 0. Exit                                                  |");
         Console.WriteLine("+----------------------------------------------------------+");
     }
