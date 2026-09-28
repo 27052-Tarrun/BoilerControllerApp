@@ -36,7 +36,7 @@ public class EventLogView
             Console.WriteLine();
             Console.WriteLine("Timestamp".PadRight(22) + "Event".PadRight(30) + "Data");
             Console.WriteLine(new string('-', 80));
-            foreach (EventLog log in logs)
+            foreach (EventLog log in logs.TakeLast(10))
             {
                 Console.WriteLine($"{log.Timestamp:dd-MM-yyyy HH:mm:ss}".PadRight(22) + $"{log.Event}".PadRight(30) + $"{log.EventData}");
             }
