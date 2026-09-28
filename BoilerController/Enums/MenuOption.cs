@@ -6,5 +6,6 @@ public enum MenuOption
     ToggleRunInterlockSwitch = 1,
     ResetLockout = 2,
     StartBoilerSequence = 3,
-    ViewEventLog = 4,
+    StopBoilerSequence = 4,
+    ViewEventLog = 5,
 }

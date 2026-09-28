@@ -65,6 +65,10 @@ public class Boiler_Controller : IBoilerController
                 StartBoilerSequence();
                 break;
 
+            case MenuOption.StopBoilerSequence:
+                StopBoilerSequence();
+                break;
+
             case MenuOption.ViewEventLog:
                 ViewEventLog();
                 break;
@@ -118,6 +122,20 @@ public class Boiler_Controller : IBoilerController
             _dashboardView.DisplayErrorWithRedraw(_boilerService.Boiler, ex.Message);
         }
     }
+
+    private void StopBoilerSequence()
+    {
+        try
+        {
+            _boilerService.StopBoilerSequence();
+            _dashboardView.ForceFullRedraw(_boilerService.Boiler);
+        }
+        catch (Exception ex)
+        {
+            _dashboardView.DisplayErrorWithRedraw(_boilerService.Boiler, ex.Message);
+        }
+    }
+
 
     private void ViewEventLog()
     {

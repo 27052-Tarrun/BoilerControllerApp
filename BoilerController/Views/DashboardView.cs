@@ -24,7 +24,7 @@ public class DashboardView
 
         _renderer.MoveToContentArea();
 
-        DisplayMenu();
+        DisplayMenu(boiler);
         int choice = ConsoleInput.ReadIntInRange("Choice : ", 0, 4, ErrorMessages.InvalidMenuChoice);
         return (MenuOption)choice;
     }
@@ -115,13 +115,14 @@ public class DashboardView
         _renderer?.ForceFullRedraw();
     }
 
-    private static void DisplayMenu()
+    private static void DisplayMenu(BoilerModel boiler)
     {
         Console.WriteLine("+----------------------------------------------------------+");
         Console.WriteLine("| 1. Toggle Run Interlock Switch                           |");
         Console.WriteLine("| 2. Reset Lockout                                         |");
         Console.WriteLine("| 3. Start Boiler Sequence                                 |");
-        Console.WriteLine("| 4. View Event Log                                        |");
+        Console.WriteLine("| 4. Stop Boiler Sequence                                  |");
+        Console.WriteLine("| 5. View Event Log                                        |");
         Console.WriteLine("| 0. Exit                                                  |");
         Console.WriteLine("+----------------------------------------------------------+");
     }
